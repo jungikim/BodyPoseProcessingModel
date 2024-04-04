@@ -5,6 +5,7 @@ Existing applications:
 - Avatar animation
 - online meeting camera focus for signers ("presenter" focus with signing instead of speech; forget which service has this)
 - physical exercise: push-up, squat counter (https://developers.google.com/ml-kit/vision/pose-detection/classifying-poses)
+- golf swing analysis
 
 Applications:
 - gesture-controlled smart home devices (with camera) / computer user interface in general (think "minority report")
