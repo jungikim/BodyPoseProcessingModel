@@ -17,3 +17,10 @@ MediaPipe issues to overcome:
 - FPS varies from device to device (train-inference skew)
 - incorrectly recognized keypoints between correctly recognized frames (smoothing? would it work well with fast movements?)
 - holistic model is in the process of being updated
+
+
+## TODO
+- [ ] Build client device-side data pipeline for processing both live webcam stream and recorded video
+- [ ] Feature engineering: hand-crafted or latent representation (embedding) learning
+- [ ] Models: sequence classification / sequence tagging / sequence-to-sequence generation
+- [ ] Stream data decoding
