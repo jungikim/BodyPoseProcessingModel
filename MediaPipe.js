@@ -374,6 +374,14 @@ function refreshMpOption(){
 refreshMpOption();
 holistic.onResults(onResults);
 
+// we send a small image to mediapipe module so that it is ready for webcam or a video file
+var img = new Image();
+img.setAttribute("crossorigin", "anonymoous");
+img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
+await holistic.send({ image: img });
+console.log('Mediapipe is loaded');
+
+
 const camera = new Camera(videoElement, {
   onFrame: async () => {
     await holistic.send({image: videoElement});
