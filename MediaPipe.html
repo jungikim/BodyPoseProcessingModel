@@ -18,12 +18,16 @@
       transform: scale(-1, 1);
     }
   }
+  .controls {
+    justify-content: left;
+    align-items: left;
+    vertical-align: top;
+  }
   .canvas_container {
     display:flex;
-    height: 100%;
-    width: 100%;
     justify-content: center;
     align-items: center;
+    vertical-align: top;
   }
   .output_canvas {
     max-width: 100%;
@@ -52,7 +56,7 @@
           setMpMinDetectionConfidence,
           setMpMinTrackingConfidence,
           setMpSelfieMode,
-         } from "./MediaPipe.js";
+  } from "./MediaPipe.js";
   window.setIsDrawPoseKeypointsCheckbox = setIsDrawPoseKeypointsCheckbox;
   window.setIsDrawFaceKeypointsCheckbox = setIsDrawFaceKeypointsCheckbox;
   window.setIsDrawHandsKeypointsCheckbox = setIsDrawHandsKeypointsCheckbox;
@@ -69,47 +73,57 @@
   window.setMpSelfieMode = setMpSelfieMode;
 </script>
 
-
 <body>
   <H1>MediaPipe Demo</H1>
   <p>Modified from https://github.com/google/mediapipe/blob/master/docs/solutions/holistic.md</p>
-  <div class="container">
-    <video class="input_video selfie"></video>
-    <div class="canvas_container">
-      <canvas class="output_canvas" width="640px" height="480px"></canvas>
-    </div>
-    <div class="controls">
-      <table>
-        <tr>
-          <td>MediaPipe Holistic Model Options:</td>
-          <td>Model Complexity <input type="number" value="0", id="mpModelComplexity" min="0" max="2" step="1" onChange="setMpModelComplexity(this.value);"/></td>
-          <td>Smooth Landmarks <input type="checkbox"checked="true", id="mpSmoothLandmarks" onChange="setMpSmoothLandmarks(this.checked);"/></td>
-          <td>Enable Segmentation <input type="checkbox" id="mpEnableSegmentation" onChange="setMpEnableSegmentation(this.checked);"/></td>
-          <td>Smooth Segmentation <input type="checkbox" id="mpSmoothSegmentation" onChange="setMpSmoothSegmentation(this.checked);"/></td>
-          <td>Refine Face Landmarks <input type="checkbox" id="mpRefineFaceLandmarks" onChange="setMpRefineFaceLandmarks(this.checked);"/></td>
-          <td>Min Detection Confidence<input type="number" value="0.5", id="mpMinDetectionConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinDetectionConfidence(this.value);"/></td>
-          <td>Min Tracking Confidence<input type="number" value="0.5", id="mpMinTrackingConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinTrackingConfidence(this.value);"/></td>
-          <td>Selfie Mode <input type="checkbox" checked="true", id="mpSelfieMode" onChange="setMpSelfieMode(this.checked);"/></td>
-        </tr>
-        <tr>
-          <td>Draw keypoints:</td>
-          <td>pose <input type="checkbox" id="isDrawPoseKeypoints" onChange="setIsDrawPoseKeypointsCheckbox(this.checked);"/></td>
-          <td>hands <input type="checkbox" id="isDrawHandsKeypoints" onChange="setIsDrawHandsKeypointsCheckbox(this.checked);"/></td>
-          <td>face <input type="checkbox" id="isDrawFaceKeypoints" onChange="setIsDrawFaceKeypointsCheckbox(this.checked);"/></td>
-        </tr>
-        <tr>
-          <td>Show table:</td>
-          <td>pose <input type="checkbox" id="isShowPoseTable" onChange="setIsShowPoseTableCheckbox(this.checked);"/></td>
-          <td>hands <input type="checkbox" id="isShowHandsTable" onChange="setIsShowHandsTableCheckbox(this.checked);"/></td>
-          <td>face <input type="checkbox" id="isShowFaceTable" onChange="setIsShowFaceTableCheckbox(this.checked);"/></td>
-        </tr>
-      </table>
-    </div>
-    <div class="canvas_container">
-      <p id="frameRate">0 FPS</p>
-    </div>
-    <p id="keypoints"></p>
+  <div>
+  <table>
+    <tr>
+      <td class="controls">
+        <h3>MediaPipe Holistic Model Options</h2>
+        <table>
+          <tr><td>Model Complexity</td><td><input type="number" value="0", id="mpModelComplexity" min="0" max="2" step="1" onChange="setMpModelComplexity(this.value);"/></td></tr>
+          <tr><td>Smooth Landmarks</td><td><input type="checkbox"checked="true", id="mpSmoothLandmarks" onChange="setMpSmoothLandmarks(this.checked);"/></td></tr>
+          <tr><td>Enable Segmentation</td><td><input type="checkbox" id="mpEnableSegmentation" onChange="setMpEnableSegmentation(this.checked);"/></td></tr>
+          <tr><td>Smooth Segmentation</td><td><input type="checkbox" id="mpSmoothSegmentation" onChange="setMpSmoothSegmentation(this.checked);"/></td></tr>
+          <tr><td>Refine Face Landmarks</td><td><input type="checkbox" id="mpRefineFaceLandmarks" onChange="setMpRefineFaceLandmarks(this.checked);"/></td></tr>
+          <tr><td>Min Detection Confidence</td><td><input type="number" value="0.5", id="mpMinDetectionConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinDetectionConfidence(this.value);"/></td></tr>
+          <tr><td>Min Tracking Confidence</td><td><input type="number" value="0.5", id="mpMinTrackingConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinTrackingConfidence(this.value);"/></td></tr>
+          <tr><td>Selfie Mode</td><td><input type="checkbox" checked="true", id="mpSelfieMode" onChange="setMpSelfieMode(this.checked);"/></td></tr>
+        </table>
+        <p></p>
+        <h3>Display Options</h2>
+        <table>
+          <tr>
+            <td></td>
+            <td>pose</td>
+            <td>hands</td>
+            <td>face</td>
+          </tr>
+          <tr>
+            <td align=right>Draw keypoints</td>
+            <td><input type="checkbox" id="isDrawPoseKeypoints" onChange="setIsDrawPoseKeypointsCheckbox(this.checked);"/></td>
+            <td><input type="checkbox" id="isDrawHandsKeypoints" onChange="setIsDrawHandsKeypointsCheckbox(this.checked);"/></td>
+            <td><input type="checkbox" id="isDrawFaceKeypoints" onChange="setIsDrawFaceKeypointsCheckbox(this.checked);"/></td>
+          </tr>
+          <tr>
+            <td align=right>Show table</td>
+            <td><input type="checkbox" id="isShowPoseTable" onChange="setIsShowPoseTableCheckbox(this.checked);"/></td>
+            <td><input type="checkbox" id="isShowHandsTable" onChange="setIsShowHandsTableCheckbox(this.checked);"/></td>
+            <td><input type="checkbox" id="isShowFaceTable" onChange="setIsShowFaceTableCheckbox(this.checked);"/></td>
+          </tr>
+        </table>
+        <h3>Frame rate</h3>
+        <p id="frameRate">0 FPS</p>
+      </td>
+      <td class="canvas_container">
+        <video class="input_video selfie"></video>
+        <canvas class="output_canvas" width="640px" height="480px"></canvas>
+      </td>
+    </tr>
+  </table>
   </div>
+  <p id="keypoints"></p>
 </body>
 </html>
 
