@@ -3,6 +3,9 @@ const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
 
 var state = {
+  fpsCount: 0,
+  fpsLastTime: Date.now(),
+  //
   isDrawPoseKeypoints: document.getElementById('isDrawPoseKeypoints').checked,
   isDrawFaceKeypoints: document.getElementById('isDrawFaceKeypoints').checked,
   isDrawHandsKeypoints: document.getElementById('isDrawHandsKeypoints').checked,
@@ -31,8 +34,6 @@ export function setIsShowHandsTableCheckbox(val){
   state.isShowHandsTable = val;
 }
 
-var fpsCount = 0;
-var fpsLastTime = Date.now();
 
 // https://github.com/google/mediapipe/blob/master/mediapipe/python/solutions/hands.py
 const HAND_LANDMARKS = {
@@ -248,12 +249,12 @@ function printKeypoints(result) {
 
 function onResults(results) {
   var fpsThisTime = Date.now();
-  if (fpsThisTime - fpsLastTime > 1000){
-    document.getElementById('frameRate').innerHTML = (fpsCount/(fpsThisTime-fpsLastTime)*1000).toFixed(2) + ' FPS';
-    fpsLastTime = fpsThisTime;
-    fpsCount = 0;
+  if (fpsThisTime - state.fpsLastTime > 1000){
+    document.getElementById('frameRate').innerHTML = (state.fpsCount/(fpsThisTime-state.fpsLastTime)*1000).toFixed(2) + ' FPS';
+    state.fpsLastTime = fpsThisTime;
+    state.fpsCount = 0;
   }
-  fpsCount = fpsCount + 1;
+  state.fpsCount += 1;
 
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
