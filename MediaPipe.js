@@ -2,6 +2,35 @@ const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
 
+var state = {
+  isDrawPoseKeypoints: document.getElementById('isDrawPoseKeypoints').checked,
+  isDrawFaceKeypoints: document.getElementById('isDrawFaceKeypoints').checked,
+  isDrawHandsKeypoints: document.getElementById('isDrawHandsKeypoints').checked,
+  isShowPoseTable: document.getElementById('isShowPoseTable').checked,
+  isShowFaceTable: document.getElementById('isShowFaceTable').checked,
+  isShowHandsTable: document.getElementById('isShowHandsTable').checked,
+}
+
+export function setIsDrawPoseKeypointsCheckbox(val){
+  state.isDrawPoseKeypoints = val;
+}
+export function setIsDrawFaceKeypointsCheckbox(val){
+  state.isDrawFaceKeypoints = val;
+}
+export function setIsDrawHandsKeypointsCheckbox(val){
+  state.isDrawHandsKeypoints = val;
+}
+
+export function setIsShowPoseTableCheckbox(val){
+  state.isShowPoseTable = val;
+}
+export function setIsShowFaceTableCheckbox(val){
+  state.isShowFaceTable = val;
+}
+export function setIsShowHandsTableCheckbox(val){
+  state.isShowHandsTable = val;
+}
+
 var fpsCount = 0;
 var fpsLastTime = Date.now();
 
@@ -94,106 +123,119 @@ function printKeypoints(result) {
     // console.log(face);
 
     // selfie mode -> left right flipped
-    buffer+=('<table><thead><tr><th>Pose</th><th>Pose World</th><th>Left hand</th><th>Right hand</th></tr></thead><tbody><tr>');
-
-    buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&emsp;x&emsp;</th><th>&emsp;y&emsp;</th><th>visibility</th></tr></thead><tbody>');
-    for (const [landmark, lIdx] of Object.entries(POSE_LANDMARKS)) {
-      buffer+=('<tr><td>');
-      buffer+=(lIdx + ' ' + landmark);
-      if (typeof pose !== 'undefined'){
-        buffer+=('</td><td>');
-        buffer+=(pose[lIdx].x.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(pose[lIdx].y.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(pose[lIdx].visibility.toFixed(3));
-        buffer+=('</td></tr>');
-      }
-      else{
-        buffer+=('</td><td></td><td></td><td></td></tr>');
-      }
+    buffer+=('<table><thead><tr>');
+    if (state.isShowPoseTable){
+      buffer+=('<th>Pose</th><th>Pose World</th>');
     }
-    buffer+=('</tbody></table></td>');
-
-    buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&nbsp;&emsp;x&emsp;</th><th>&nbsp;&emsp;y&emsp;</th><th>&nbsp;&emsp;z&emsp;</th><th>visibility</th></tr></thead><tbody>');
-    for (const [landmark, lIdx] of Object.entries(POSE_LANDMARKS)) {
-      buffer+=('<tr><td>');
-      buffer+=(lIdx + ' ' + landmark);
-      if (typeof poseWorld !== 'undefined'){
-        buffer+=('</td><td>');
-        buffer+=(poseWorld[lIdx].x.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(poseWorld[lIdx].y.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(poseWorld[lIdx].z.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(poseWorld[lIdx].visibility.toFixed(3));
-        buffer+=('</td></tr>');
-      }
-      else{
-        buffer+=('</td><td></td><td></td><td></td><td></td></tr>');
-      }
+    if (state.isShowHandsTable){
+      buffer+=('<th>Left hand</th><th>Right hand</th>');
     }
-    buffer+=('</tbody></table></td>');
+    buffer+=('</tr></thead><tbody><tr>');
 
-    buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&nbsp;&emsp;x&emsp;</th><th>&nbsp;&emsp;y&emsp;</th><th>&nbsp;&emsp;z&emsp;</th></tr></thead><tbody>');
-    for (const [landmark, lIdx] of Object.entries(HAND_LANDMARKS)) {
-      buffer+=('<tr><td>');
-      buffer+=(lIdx + ' ' + landmark);
-      if (typeof rightHand !== 'undefined'){
-        buffer+=('</td><td>');
-        buffer+=(rightHand[lIdx].x.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(rightHand[lIdx].y.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(rightHand[lIdx].z.toFixed(3));
-        buffer+=('</td></tr>');
+    if (state.isShowPoseTable){
+      buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&emsp;x&emsp;</th><th>&emsp;y&emsp;</th><th>visibility</th></tr></thead><tbody>');
+      for (const [landmark, lIdx] of Object.entries(POSE_LANDMARKS)) {
+        buffer+=('<tr><td>');
+        buffer+=(lIdx + ' ' + landmark);
+        if (typeof pose !== 'undefined'){
+          buffer+=('</td><td>');
+          buffer+=(pose[lIdx].x.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(pose[lIdx].y.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(pose[lIdx].visibility.toFixed(3));
+          buffer+=('</td></tr>');
+        }
+        else{
+          buffer+=('</td><td></td><td></td><td></td></tr>');
+        }
       }
-      else{
-        buffer+=('</td><td></td><td></td><td></td></tr>');
-      }
-    }
-    buffer+=('</tbody></table></td>');
+      buffer+=('</tbody></table></td>');
 
-    buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&nbsp;&emsp;x&emsp;</th><th>&nbsp;&emsp;y&emsp;</th><th>&nbsp;&emsp;z&emsp;</th></tr></thead><tbody>');
-    for (const [landmark, lIdx] of Object.entries(HAND_LANDMARKS)) {
-      buffer+=('<tr><td>');
-      buffer+=(lIdx + ' ' + landmark);
-      if (typeof leftHand !== 'undefined'){
-        buffer+=('</td><td>');
-        buffer+=(leftHand[lIdx].x.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(leftHand[lIdx].y.toFixed(3));
-        buffer+=('</td><td>');
-        buffer+=(leftHand[lIdx].z.toFixed(3));
-        buffer+=('</td></tr>');
+      buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&nbsp;&emsp;x&emsp;</th><th>&nbsp;&emsp;y&emsp;</th><th>&nbsp;&emsp;z&emsp;</th><th>visibility</th></tr></thead><tbody>');
+      for (const [landmark, lIdx] of Object.entries(POSE_LANDMARKS)) {
+        buffer+=('<tr><td>');
+        buffer+=(lIdx + ' ' + landmark);
+        if (typeof poseWorld !== 'undefined'){
+          buffer+=('</td><td>');
+          buffer+=(poseWorld[lIdx].x.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(poseWorld[lIdx].y.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(poseWorld[lIdx].z.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(poseWorld[lIdx].visibility.toFixed(3));
+          buffer+=('</td></tr>');
+        }
+        else{
+          buffer+=('</td><td></td><td></td><td></td><td></td></tr>');
+        }
       }
-      else{
-        buffer+=('</td><td></td><td></td><td></td></tr>');
-      }
+      buffer+=('</tbody></table></td>');
     }
-    buffer+=('</tbody></table></td>');
+
+    if (state.isShowHandsTable){
+      buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&nbsp;&emsp;x&emsp;</th><th>&nbsp;&emsp;y&emsp;</th><th>&nbsp;&emsp;z&emsp;</th></tr></thead><tbody>');
+      for (const [landmark, lIdx] of Object.entries(HAND_LANDMARKS)) {
+        buffer+=('<tr><td>');
+        buffer+=(lIdx + ' ' + landmark);
+        if (typeof rightHand !== 'undefined'){
+          buffer+=('</td><td>');
+          buffer+=(rightHand[lIdx].x.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(rightHand[lIdx].y.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(rightHand[lIdx].z.toFixed(3));
+          buffer+=('</td></tr>');
+        }
+        else{
+          buffer+=('</td><td></td><td></td><td></td></tr>');
+        }
+      }
+      buffer+=('</tbody></table></td>');
+
+      buffer+=('<td valign="top"><table border="1"><thead><tr><th>Landmark</th><th>&nbsp;&emsp;x&emsp;</th><th>&nbsp;&emsp;y&emsp;</th><th>&nbsp;&emsp;z&emsp;</th></tr></thead><tbody>');
+      for (const [landmark, lIdx] of Object.entries(HAND_LANDMARKS)) {
+        buffer+=('<tr><td>');
+        buffer+=(lIdx + ' ' + landmark);
+        if (typeof leftHand !== 'undefined'){
+          buffer+=('</td><td>');
+          buffer+=(leftHand[lIdx].x.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(leftHand[lIdx].y.toFixed(3));
+          buffer+=('</td><td>');
+          buffer+=(leftHand[lIdx].z.toFixed(3));
+          buffer+=('</td></tr>');
+        }
+        else{
+          buffer+=('</td><td></td><td></td><td></td></tr>');
+        }
+      }
+      buffer+=('</tbody></table></td>');
+    }
 
     buffer+=('</tr></tbody></table>');
 
-    buffer+=('<table width="6400"><thead><tr><th align="left">Face</th></tr></thead><tbody><tr>');
-    buffer+=('<td valign="top"><table border="1" width="6400"><thead><tr>');
-    for (const [landmark, indices] of Object.entries(MESH_ANNOTATIONS)) {
-      buffer+=('<th>');
-      buffer+=(landmark);
-      buffer+=('</th>');
-    }
-    buffer+=('</tr></thead><tbody><tr>');
-    for (const [landmark, indices] of Object.entries(MESH_ANNOTATIONS)) {
-      buffer+=('<td valign="top" width="100">');
-      for (const lIdx of indices){
-        if (typeof face !== 'undefined' && typeof face[lIdx] !== 'undefined') {
-          buffer+=(lIdx)+': '+(face[lIdx].x.toFixed(3)+', '+face[lIdx].y.toFixed(3)+', '+face[lIdx].z.toFixed(3))+'<br>';
-        }
+    if (state.isShowFaceTable){
+      buffer+=('<table width="6400"><thead><tr><th align="left">Face</th></tr></thead><tbody><tr>');
+      buffer+=('<td valign="top"><table border="1" width="6400"><thead><tr>');
+      for (const [landmark, indices] of Object.entries(MESH_ANNOTATIONS)) {
+        buffer+=('<th>');
+        buffer+=(landmark);
+        buffer+=('</th>');
       }
-      buffer+=('</td>');
+      buffer+=('</tr></thead><tbody><tr>');
+      for (const [landmark, indices] of Object.entries(MESH_ANNOTATIONS)) {
+        buffer+=('<td valign="top" width="100">');
+        for (const lIdx of indices){
+          if (typeof face !== 'undefined' && typeof face[lIdx] !== 'undefined') {
+            buffer+=(lIdx)+': '+(face[lIdx].x.toFixed(3)+', '+face[lIdx].y.toFixed(3)+', '+face[lIdx].z.toFixed(3))+'<br>';
+          }
+        }
+        buffer+=('</td>');
+      }
+      buffer+=('</tr></tbody></table></td>');
     }
-    buffer+=('</tr></tbody></table></td>');
     buffer+=('</tr></tbody></table>');
 
     return buffer;
@@ -229,13 +271,20 @@ function onResults(results) {
   canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
 
   canvasCtx.globalCompositeOperation = 'source-over';
-  drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00FF00', lineWidth: 4});
-  drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FF0000', lineWidth: 2});
-  drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
-  drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {color: '#CC0000', lineWidth: 5});
-  drawLandmarks(canvasCtx, results.leftHandLandmarks, {color: '#00FF00', lineWidth: 2});
-  drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {color: '#00CC00', lineWidth: 5});
-  drawLandmarks(canvasCtx, results.rightHandLandmarks, {color: '#FF0000', lineWidth: 2});
+
+  if (state.isDrawPoseKeypoints){
+    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00FF00', lineWidth: 4});
+    drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FF0000', lineWidth: 2});
+  }
+  if (state.isDrawFaceKeypoints){
+    drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
+  }
+  if (state.isDrawHandsKeypoints){
+    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {color: '#CC0000', lineWidth: 5});
+    drawLandmarks(canvasCtx, results.leftHandLandmarks, {color: '#00FF00', lineWidth: 2});
+    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {color: '#00CC00', lineWidth: 5});
+    drawLandmarks(canvasCtx, results.rightHandLandmarks, {color: '#FF0000', lineWidth: 2});
+  }
   canvasCtx.restore();
   
   document.getElementById('keypoints').innerHTML = printKeypoints(results);

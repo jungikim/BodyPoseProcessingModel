@@ -37,6 +37,22 @@
 
 <script type="module" src="MediaPipe.js" crossorigin="anonymous">
 </script>
+<script type="module">
+  import {setIsDrawPoseKeypointsCheckbox,
+          setIsDrawFaceKeypointsCheckbox,
+          setIsDrawHandsKeypointsCheckbox,
+          setIsShowPoseTableCheckbox,
+          setIsShowFaceTableCheckbox,
+          setIsShowHandsTableCheckbox,
+         } from "./MediaPipe.js";
+  window.setIsDrawPoseKeypointsCheckbox = setIsDrawPoseKeypointsCheckbox;
+  window.setIsDrawFaceKeypointsCheckbox = setIsDrawFaceKeypointsCheckbox;
+  window.setIsDrawHandsKeypointsCheckbox = setIsDrawHandsKeypointsCheckbox;
+  window.setIsShowPoseTableCheckbox = setIsShowPoseTableCheckbox;
+  window.setIsShowFaceTableCheckbox = setIsShowFaceTableCheckbox;
+  window.setIsShowHandsTableCheckbox = setIsShowHandsTableCheckbox;
+</script>
+
 
 <body>
   <H1>MediaPipe Demo</H1>
@@ -45,6 +61,22 @@
     <video class="input_video selfie"></video>
     <div class="canvas_container">
       <canvas class="output_canvas" width="640px" height="480px"></canvas>
+    </div>
+    <div class="controls">
+      <table>
+        <tr>
+          <td>Draw keypoints:</td>
+          <td>pose <input type="checkbox" id="isDrawPoseKeypoints" onChange="setIsDrawPoseKeypointsCheckbox(this.checked);"/></td>
+          <td>hands <input type="checkbox" id="isDrawHandsKeypoints" onChange="setIsDrawHandsKeypointsCheckbox(this.checked);"/></td>
+          <td>face <input type="checkbox" id="isDrawFaceKeypoints" onChange="setIsDrawFaceKeypointsCheckbox(this.checked);"/></td>
+        </tr>
+        <tr>
+          <td>Show table:</td>
+          <td>pose <input type="checkbox" id="isShowPoseTable" onChange="setIsShowPoseTableCheckbox(this.checked);"/></td>
+          <td>hands <input type="checkbox" id="isShowHandsTable" onChange="setIsShowHandsTableCheckbox(this.checked);"/></td>
+          <td>face <input type="checkbox" id="isShowFaceTable" onChange="setIsShowFaceTableCheckbox(this.checked);"/></td>
+        </tr>
+      </table>
     </div>
     <div class="canvas_container">
       <p id="frameRate">0 FPS</p>
