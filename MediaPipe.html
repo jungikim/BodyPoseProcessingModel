@@ -44,6 +44,14 @@
           setIsShowPoseTableCheckbox,
           setIsShowFaceTableCheckbox,
           setIsShowHandsTableCheckbox,
+          setMpModelComplexity,
+          setMpSmoothLandmarks,
+          setMpEnableSegmentation,
+          setMpSmoothSegmentation,
+          setMpRefineFaceLandmarks,
+          setMpMinDetectionConfidence,
+          setMpMinTrackingConfidence,
+          setMpSelfieMode,
          } from "./MediaPipe.js";
   window.setIsDrawPoseKeypointsCheckbox = setIsDrawPoseKeypointsCheckbox;
   window.setIsDrawFaceKeypointsCheckbox = setIsDrawFaceKeypointsCheckbox;
@@ -51,6 +59,14 @@
   window.setIsShowPoseTableCheckbox = setIsShowPoseTableCheckbox;
   window.setIsShowFaceTableCheckbox = setIsShowFaceTableCheckbox;
   window.setIsShowHandsTableCheckbox = setIsShowHandsTableCheckbox;
+  window.setMpModelComplexity = setMpModelComplexity;
+  window.setMpSmoothLandmarks = setMpSmoothLandmarks;
+  window.setMpEnableSegmentation = setMpEnableSegmentation;
+  window.setMpSmoothSegmentation = setMpSmoothSegmentation;
+  window.setMpRefineFaceLandmarks = setMpRefineFaceLandmarks;
+  window.setMpMinDetectionConfidence = setMpMinDetectionConfidence;
+  window.setMpMinTrackingConfidence = setMpMinTrackingConfidence;
+  window.setMpSelfieMode = setMpSelfieMode;
 </script>
 
 
@@ -64,6 +80,17 @@
     </div>
     <div class="controls">
       <table>
+        <tr>
+          <td>MediaPipe Holistic Model Options:</td>
+          <td>Model Complexity <input type="number" value="0", id="mpModelComplexity" min="0" max="2" step="1" onChange="setMpModelComplexity(this.value);"/></td>
+          <td>Smooth Landmarks <input type="checkbox"checked="true", id="mpSmoothLandmarks" onChange="setMpSmoothLandmarks(this.checked);"/></td>
+          <td>Enable Segmentation <input type="checkbox" id="mpEnableSegmentation" onChange="setMpEnableSegmentation(this.checked);"/></td>
+          <td>Smooth Segmentation <input type="checkbox" id="mpSmoothSegmentation" onChange="setMpSmoothSegmentation(this.checked);"/></td>
+          <td>Refine Face Landmarks <input type="checkbox" id="mpRefineFaceLandmarks" onChange="setMpRefineFaceLandmarks(this.checked);"/></td>
+          <td>Min Detection Confidence<input type="number" value="0.5", id="mpMinDetectionConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinDetectionConfidence(this.value);"/></td>
+          <td>Min Tracking Confidence<input type="number" value="0.5", id="mpMinTrackingConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinTrackingConfidence(this.value);"/></td>
+          <td>Selfie Mode <input type="checkbox" checked="true", id="mpSelfieMode" onChange="setMpSelfieMode(this.checked);"/></td>
+        </tr>
         <tr>
           <td>Draw keypoints:</td>
           <td>pose <input type="checkbox" id="isDrawPoseKeypoints" onChange="setIsDrawPoseKeypointsCheckbox(this.checked);"/></td>

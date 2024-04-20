@@ -12,6 +12,15 @@ var state = {
   isShowPoseTable: document.getElementById('isShowPoseTable').checked,
   isShowFaceTable: document.getElementById('isShowFaceTable').checked,
   isShowHandsTable: document.getElementById('isShowHandsTable').checked,
+  //
+  mpModelComplexity: 0,
+  mpSmoothLandmarks: true,
+  mpEnableSegmentation: false,
+  mpSmoothSegmentation: false,
+  mpRefineFaceLandmarks: true,
+  mpMinDetectionConfidence: 0.5,
+  mpMinTrackingConfidence: 0.5,
+  mpSelfieMode: true
 }
 
 export function setIsDrawPoseKeypointsCheckbox(val){
@@ -34,6 +43,46 @@ export function setIsShowHandsTableCheckbox(val){
   state.isShowHandsTable = val;
 }
 
+export function setMpModelComplexity(val){
+  console.log('setMpModelComplexity('+val+')')
+  state.mpModelComplexity = parseInt(val);
+  refreshMpOption();
+}
+export function setMpSmoothLandmarks(val){
+  console.log('setMpSmoothLandmarks('+val+')')
+  state.mpSmoothLandmarks = val;
+  refreshMpOption();
+}
+export function setMpEnableSegmentation(val){
+  console.log('setMpEnableSegmentation('+val+')')
+  state.mpEnableSegmentation = val;
+  refreshMpOption();
+}
+export function setMpSmoothSegmentation(val){
+  console.log('setMpSmoothSegmentation('+val+')')
+  state.mpSmoothSegmentation = val;
+  refreshMpOption();
+}
+export function setMpRefineFaceLandmarks(val){
+  console.log('setMpRefineFaceLandmarks('+val+')')
+  state.mpRefineFaceLandmarks = val;
+  refreshMpOption();
+}
+export function setMpMinDetectionConfidence(val){
+  console.log('setMpMinDetectionConfidence('+val+')')
+  state.mpMinDetectionConfidence = parseFloat(val);
+  refreshMpOption();
+}
+export function setMpMinTrackingConfidence(val){
+  console.log('setMpMinTrackingConfidence('+val+')')
+  state.mpMinTrackingConfidence = parseFloat(val);
+  refreshMpOption();
+}
+export function setMpSelfieMode(val){
+  console.log('setMpSelfieMode('+val+')')
+  state.mpSelfieMode = val;
+  refreshMpOption();
+}
 
 // https://github.com/google/mediapipe/blob/master/mediapipe/python/solutions/hands.py
 const HAND_LANDMARKS = {
@@ -129,7 +178,12 @@ function printKeypoints(result) {
       buffer+=('<th>Pose</th><th>Pose World</th>');
     }
     if (state.isShowHandsTable){
-      buffer+=('<th>Left hand</th><th>Right hand</th>');
+      if (state.mpSelfieMode){
+        buffer+=('<th>Left hand</th><th>Right hand</th>');
+      }
+      else{
+        buffer+=('<th>Right hand</th><th>Left hand</th>');
+      }
     }
     buffer+=('</tr></thead><tbody><tr>');
 
@@ -294,16 +348,30 @@ function onResults(results) {
 const holistic = new Holistic({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`;
 }});
-holistic.setOptions({
-  modelComplexity: 2,
-  smoothLandmarks: true,
-  enableSegmentation: false,
-  smoothSegmentation: false,
-  refineFaceLandmarks: true,
-  minDetectionConfidence: 0.5,
-  minTrackingConfidence: 0.5,
-  selfieMode: true
-});
+
+function refreshMpOption(){
+  console.log('refreshMpOption(): ' + '\n' +
+              '  modelComplexity: ' + state.mpModelComplexity + '\n' +
+              '  smoothLandmarks: ' + state.mpSmoothLandmarks + '\n' +
+              '  enableSegmentation: ' + state.mpEnableSegmentation + '\n' +
+              '  smoothSegmentation: ' + state.mpSmoothSegmentation + '\n' +
+              '  refineFaceLandmarks: ' + state.mpRefineFaceLandmarks + '\n' +
+              '  minDetectionConfidence: ' + state.mpMinDetectionConfidence + '\n' +
+              '  minTrackingConfidence: ' + state.mpMinTrackingConfidence + '\n' +
+              '  selfieMode: ' + state.mpSelfieMode
+              );
+  holistic.setOptions({
+    modelComplexity: state.mpModelComplexity,
+    smoothLandmarks: state.mpSmoothLandmarks,
+    enableSegmentation: state.mpEnableSegmentation,
+    smoothSegmentation: state.mpSmoothSegmentation,
+    refineFaceLandmarks: state.mpRefineFaceLandmarks,
+    minDetectionConfidence: state.mpMinDetectionConfidence,
+    minTrackingConfidence: state.mpMinTrackingConfidence,
+    selfieMode: state.mpSelfieMode,
+  });
+}
+refreshMpOption();
 holistic.onResults(onResults);
 
 const camera = new Camera(videoElement, {
