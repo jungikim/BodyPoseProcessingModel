@@ -2,6 +2,9 @@ const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
 
+var holistic = null;
+var camera = null;
+
 var state = {
   fpsCount: 0,
   fpsLastTime: Date.now(),
@@ -20,7 +23,121 @@ var state = {
   mpRefineFaceLandmarks: true,
   mpMinDetectionConfidence: 0.5,
   mpMinTrackingConfidence: 0.5,
-  mpSelfieMode: true
+  mpSelfieMode: true,
+  //
+  dataCollectionClientID: 'ENTER_YOUR_UNIQUE_CLIENT_ID',
+  dataCollectionServerURL: 'wss://ENTER_SERVER_URL:PORT/',
+  //
+  fileToLoad: '',
+}
+
+export async function loadMediaPipe(){
+    holistic = new Holistic({locateFile: (file) => {
+      return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`;
+    }});
+
+    refreshMediaPipeOption();
+    holistic.onResults(onResults);
+
+    // we send a small image to mediapipe module so that it is ready for webcam or a video file
+    var img = new Image();
+    img.setAttribute("crossorigin", "anonymoous");
+    img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=";
+    await holistic.send({ image: img });
+
+    console.log('Mediapipe is loaded');
+}
+
+function refreshMediaPipeOption(){
+  console.log('refreshMediaPipeOption(): ' + '\n' +
+              '  modelComplexity: ' + state.mpModelComplexity + '\n' +
+              '  smoothLandmarks: ' + state.mpSmoothLandmarks + '\n' +
+              '  enableSegmentation: ' + state.mpEnableSegmentation + '\n' +
+              '  smoothSegmentation: ' + state.mpSmoothSegmentation + '\n' +
+              '  refineFaceLandmarks: ' + state.mpRefineFaceLandmarks + '\n' +
+              '  minDetectionConfidence: ' + state.mpMinDetectionConfidence + '\n' +
+              '  minTrackingConfidence: ' + state.mpMinTrackingConfidence + '\n' +
+              '  selfieMode: ' + state.mpSelfieMode
+              );
+  holistic.setOptions({
+    modelComplexity: state.mpModelComplexity,
+    smoothLandmarks: state.mpSmoothLandmarks,
+    enableSegmentation: state.mpEnableSegmentation,
+    smoothSegmentation: state.mpSmoothSegmentation,
+    refineFaceLandmarks: state.mpRefineFaceLandmarks,
+    minDetectionConfidence: state.mpMinDetectionConfidence,
+    minTrackingConfidence: state.mpMinTrackingConfidence,
+    selfieMode: state.mpSelfieMode,
+  });
+}
+
+export function loadCamera(){
+    camera = new Camera(videoElement, {
+      onFrame: async () => {
+        await holistic.send({image: videoElement});
+      },
+      width: 640,
+      height: 480
+    });
+    camera.start();
+}
+export function setFileToLoad(val){
+  console.log('setFileToLoad('+val+')')
+  state.fileToLoad = val;
+}
+export function loadFile(){
+  console.log('loadFile() called (NOT IMPLEMENTED YET)')
+}
+
+
+export function setMpModelComplexity(val){
+  console.log('setMpModelComplexity('+val+')')
+  state.mpModelComplexity = parseInt(val);
+  refreshMediaPipeOption();
+}
+export function setMpSmoothLandmarks(val){
+  console.log('setMpSmoothLandmarks('+val+')')
+  state.mpSmoothLandmarks = val;
+  refreshMediaPipeOption();
+}
+export function setMpEnableSegmentation(val){
+  console.log('setMpEnableSegmentation('+val+')')
+  state.mpEnableSegmentation = val;
+  refreshMediaPipeOption();
+}
+export function setMpSmoothSegmentation(val){
+  console.log('setMpSmoothSegmentation('+val+')')
+  state.mpSmoothSegmentation = val;
+  refreshMediaPipeOption();
+}
+export function setMpRefineFaceLandmarks(val){
+  console.log('setMpRefineFaceLandmarks('+val+')')
+  state.mpRefineFaceLandmarks = val;
+  refreshMediaPipeOption();
+}
+export function setMpMinDetectionConfidence(val){
+  console.log('setMpMinDetectionConfidence('+val+')')
+  state.mpMinDetectionConfidence = parseFloat(val);
+  refreshMediaPipeOption();
+}
+export function setMpMinTrackingConfidence(val){
+  console.log('setMpMinTrackingConfidence('+val+')')
+  state.mpMinTrackingConfidence = parseFloat(val);
+  refreshMediaPipeOption();
+}
+export function setMpSelfieMode(val){
+  console.log('setMpSelfieMode('+val+')')
+  state.mpSelfieMode = val;
+  refreshMediaPipeOption();
+}
+
+export function setDataCollectionClientID(val){
+  console.log('setDataCollectionClientID('+val+')')
+  state.dataCollectionClientID = val;
+}
+export function setDataCollectionServerURL(val){
+  console.log('setDataCollectionServerURL('+val+')')
+  state.dataCollectionServerURL = val;
 }
 
 export function setIsDrawPoseKeypointsCheckbox(val){
@@ -41,47 +158,6 @@ export function setIsShowFaceTableCheckbox(val){
 }
 export function setIsShowHandsTableCheckbox(val){
   state.isShowHandsTable = val;
-}
-
-export function setMpModelComplexity(val){
-  console.log('setMpModelComplexity('+val+')')
-  state.mpModelComplexity = parseInt(val);
-  refreshMpOption();
-}
-export function setMpSmoothLandmarks(val){
-  console.log('setMpSmoothLandmarks('+val+')')
-  state.mpSmoothLandmarks = val;
-  refreshMpOption();
-}
-export function setMpEnableSegmentation(val){
-  console.log('setMpEnableSegmentation('+val+')')
-  state.mpEnableSegmentation = val;
-  refreshMpOption();
-}
-export function setMpSmoothSegmentation(val){
-  console.log('setMpSmoothSegmentation('+val+')')
-  state.mpSmoothSegmentation = val;
-  refreshMpOption();
-}
-export function setMpRefineFaceLandmarks(val){
-  console.log('setMpRefineFaceLandmarks('+val+')')
-  state.mpRefineFaceLandmarks = val;
-  refreshMpOption();
-}
-export function setMpMinDetectionConfidence(val){
-  console.log('setMpMinDetectionConfidence('+val+')')
-  state.mpMinDetectionConfidence = parseFloat(val);
-  refreshMpOption();
-}
-export function setMpMinTrackingConfidence(val){
-  console.log('setMpMinTrackingConfidence('+val+')')
-  state.mpMinTrackingConfidence = parseFloat(val);
-  refreshMpOption();
-}
-export function setMpSelfieMode(val){
-  console.log('setMpSelfieMode('+val+')')
-  state.mpSelfieMode = val;
-  refreshMpOption();
 }
 
 // https://github.com/google/mediapipe/blob/master/mediapipe/python/solutions/hands.py
@@ -157,6 +233,50 @@ const MESH_ANNOTATIONS = {
   rightCheek: [205],
   leftCheek: [425]
 };
+
+function onResults(results) {
+  var fpsThisTime = Date.now();
+  if (fpsThisTime - state.fpsLastTime > 1000){
+    document.getElementById('frameRate').innerHTML = (state.fpsCount/(fpsThisTime-state.fpsLastTime)*1000).toFixed(2) + ' FPS';
+    state.fpsLastTime = fpsThisTime;
+    state.fpsCount = 0;
+  }
+  state.fpsCount += 1;
+
+  canvasCtx.save();
+  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+  if (typeof results.segmentationMask !== 'undefined'){
+    canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
+  }
+
+  // Only overwrite existing pixels.
+  canvasCtx.globalCompositeOperation = 'source-in';
+  canvasCtx.fillStyle = '#00FF00';
+  canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
+
+  // Only overwrite missing pixels.
+  canvasCtx.globalCompositeOperation = 'destination-atop';
+  canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+  canvasCtx.globalCompositeOperation = 'source-over';
+
+  if (state.isDrawPoseKeypoints){
+    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00FF00', lineWidth: 4});
+    drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FF0000', lineWidth: 2});
+  }
+  if (state.isDrawFaceKeypoints){
+    drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
+  }
+  if (state.isDrawHandsKeypoints){
+    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {color: '#CC0000', lineWidth: 5});
+    drawLandmarks(canvasCtx, results.leftHandLandmarks, {color: '#00FF00', lineWidth: 2});
+    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {color: '#00CC00', lineWidth: 5});
+    drawLandmarks(canvasCtx, results.rightHandLandmarks, {color: '#FF0000', lineWidth: 2});
+  }
+  canvasCtx.restore();
+  
+  document.getElementById('keypoints').innerHTML = printKeypoints(results);
+}
 
 function printKeypoints(result) {
   try {
@@ -301,92 +421,3 @@ function printKeypoints(result) {
   }
 }
 
-function onResults(results) {
-  var fpsThisTime = Date.now();
-  if (fpsThisTime - state.fpsLastTime > 1000){
-    document.getElementById('frameRate').innerHTML = (state.fpsCount/(fpsThisTime-state.fpsLastTime)*1000).toFixed(2) + ' FPS';
-    state.fpsLastTime = fpsThisTime;
-    state.fpsCount = 0;
-  }
-  state.fpsCount += 1;
-
-  canvasCtx.save();
-  canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-  if (typeof results.segmentationMask !== 'undefined'){
-    canvasCtx.drawImage(results.segmentationMask, 0, 0, canvasElement.width, canvasElement.height);
-  }
-
-  // Only overwrite existing pixels.
-  canvasCtx.globalCompositeOperation = 'source-in';
-  canvasCtx.fillStyle = '#00FF00';
-  canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
-
-  // Only overwrite missing pixels.
-  canvasCtx.globalCompositeOperation = 'destination-atop';
-  canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-  canvasCtx.globalCompositeOperation = 'source-over';
-
-  if (state.isDrawPoseKeypoints){
-    drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS, {color: '#00FF00', lineWidth: 4});
-    drawLandmarks(canvasCtx, results.poseLandmarks, {color: '#FF0000', lineWidth: 2});
-  }
-  if (state.isDrawFaceKeypoints){
-    drawConnectors(canvasCtx, results.faceLandmarks, FACEMESH_TESSELATION, {color: '#C0C0C070', lineWidth: 1});
-  }
-  if (state.isDrawHandsKeypoints){
-    drawConnectors(canvasCtx, results.leftHandLandmarks, HAND_CONNECTIONS, {color: '#CC0000', lineWidth: 5});
-    drawLandmarks(canvasCtx, results.leftHandLandmarks, {color: '#00FF00', lineWidth: 2});
-    drawConnectors(canvasCtx, results.rightHandLandmarks, HAND_CONNECTIONS, {color: '#00CC00', lineWidth: 5});
-    drawLandmarks(canvasCtx, results.rightHandLandmarks, {color: '#FF0000', lineWidth: 2});
-  }
-  canvasCtx.restore();
-  
-  document.getElementById('keypoints').innerHTML = printKeypoints(results);
-}
-
-const holistic = new Holistic({locateFile: (file) => {
-  return `https://cdn.jsdelivr.net/npm/@mediapipe/holistic/${file}`;
-}});
-
-function refreshMpOption(){
-  console.log('refreshMpOption(): ' + '\n' +
-              '  modelComplexity: ' + state.mpModelComplexity + '\n' +
-              '  smoothLandmarks: ' + state.mpSmoothLandmarks + '\n' +
-              '  enableSegmentation: ' + state.mpEnableSegmentation + '\n' +
-              '  smoothSegmentation: ' + state.mpSmoothSegmentation + '\n' +
-              '  refineFaceLandmarks: ' + state.mpRefineFaceLandmarks + '\n' +
-              '  minDetectionConfidence: ' + state.mpMinDetectionConfidence + '\n' +
-              '  minTrackingConfidence: ' + state.mpMinTrackingConfidence + '\n' +
-              '  selfieMode: ' + state.mpSelfieMode
-              );
-  holistic.setOptions({
-    modelComplexity: state.mpModelComplexity,
-    smoothLandmarks: state.mpSmoothLandmarks,
-    enableSegmentation: state.mpEnableSegmentation,
-    smoothSegmentation: state.mpSmoothSegmentation,
-    refineFaceLandmarks: state.mpRefineFaceLandmarks,
-    minDetectionConfidence: state.mpMinDetectionConfidence,
-    minTrackingConfidence: state.mpMinTrackingConfidence,
-    selfieMode: state.mpSelfieMode,
-  });
-}
-refreshMpOption();
-holistic.onResults(onResults);
-
-// we send a small image to mediapipe module so that it is ready for webcam or a video file
-var img = new Image();
-img.setAttribute("crossorigin", "anonymoous");
-img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAP7//wAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==";
-await holistic.send({ image: img });
-console.log('Mediapipe is loaded');
-
-
-const camera = new Camera(videoElement, {
-  onFrame: async () => {
-    await holistic.send({image: videoElement});
-  },
-  width: 640,
-  height: 480
-});
-camera.start();

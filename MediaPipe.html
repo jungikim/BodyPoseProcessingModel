@@ -42,12 +42,10 @@
 <script type="module" src="MediaPipe.js" crossorigin="anonymous">
 </script>
 <script type="module">
-  import {setIsDrawPoseKeypointsCheckbox,
-          setIsDrawFaceKeypointsCheckbox,
-          setIsDrawHandsKeypointsCheckbox,
-          setIsShowPoseTableCheckbox,
-          setIsShowFaceTableCheckbox,
-          setIsShowHandsTableCheckbox,
+  import {loadMediaPipe,
+          loadCamera,
+          loadFile,
+          setFileToLoad,
           setMpModelComplexity,
           setMpSmoothLandmarks,
           setMpEnableSegmentation,
@@ -56,13 +54,19 @@
           setMpMinDetectionConfidence,
           setMpMinTrackingConfidence,
           setMpSelfieMode,
+          setIsDrawPoseKeypointsCheckbox,
+          setIsDrawFaceKeypointsCheckbox,
+          setIsDrawHandsKeypointsCheckbox,
+          setIsShowPoseTableCheckbox,
+          setIsShowFaceTableCheckbox,
+          setIsShowHandsTableCheckbox,
+          setDataCollectionClientID,
+          setDataCollectionServerURL,
   } from "./MediaPipe.js";
-  window.setIsDrawPoseKeypointsCheckbox = setIsDrawPoseKeypointsCheckbox;
-  window.setIsDrawFaceKeypointsCheckbox = setIsDrawFaceKeypointsCheckbox;
-  window.setIsDrawHandsKeypointsCheckbox = setIsDrawHandsKeypointsCheckbox;
-  window.setIsShowPoseTableCheckbox = setIsShowPoseTableCheckbox;
-  window.setIsShowFaceTableCheckbox = setIsShowFaceTableCheckbox;
-  window.setIsShowHandsTableCheckbox = setIsShowHandsTableCheckbox;
+  window.loadMediaPipe = loadMediaPipe;
+  window.loadCamera = loadCamera;
+  window.loadFile = loadFile;
+  window.setFileToLoad = setFileToLoad;
   window.setMpModelComplexity = setMpModelComplexity;
   window.setMpSmoothLandmarks = setMpSmoothLandmarks;
   window.setMpEnableSegmentation = setMpEnableSegmentation;
@@ -71,15 +75,29 @@
   window.setMpMinDetectionConfidence = setMpMinDetectionConfidence;
   window.setMpMinTrackingConfidence = setMpMinTrackingConfidence;
   window.setMpSelfieMode = setMpSelfieMode;
+  window.setIsDrawPoseKeypointsCheckbox = setIsDrawPoseKeypointsCheckbox;
+  window.setIsDrawFaceKeypointsCheckbox = setIsDrawFaceKeypointsCheckbox;
+  window.setIsDrawHandsKeypointsCheckbox = setIsDrawHandsKeypointsCheckbox;
+  window.setIsShowPoseTableCheckbox = setIsShowPoseTableCheckbox;
+  window.setIsShowFaceTableCheckbox = setIsShowFaceTableCheckbox;
+  window.setIsShowHandsTableCheckbox = setIsShowHandsTableCheckbox;
+  window.setDataCollectionClientID = setDataCollectionClientID;
+  window.setDataCollectionServerURL = setDataCollectionServerURL;
 </script>
 
 <body>
   <H1>MediaPipe Holistic Landmarks Detection Model</H1>
   <p>Modified from https://github.com/google/mediapipe/blob/master/docs/solutions/holistic.md</p>
   <table>
-    <tr>
       <td class="controls">
-        <h3>MediaPipe Holistic Model Options</h2>
+        <h3></h3>
+        <table>
+          <tr><td><button onClick="loadMediaPipe()">Load Model</button></td></tr>
+          <tr><td><button onClick="loadCamera();">Load Camera</button></td></tr>
+          <tr><td><button onClick="loadFile();">Load File</button></td></tr>
+          <tr><td><input type="text" id="fileToLoad" onChange="setFileToLoad(this.value);" size="50"></td></tr>
+        </table>
+        <h3>Model Options</h3>
         <table>
           <tr><td>Model Complexity</td><td><input type="number" value="0", id="mpModelComplexity" min="0" max="2" step="1" onChange="setMpModelComplexity(this.value);"/></td></tr>
           <tr><td>Smooth Landmarks</td><td><input type="checkbox"checked="true", id="mpSmoothLandmarks" onChange="setMpSmoothLandmarks(this.checked);"/></td></tr>
@@ -91,7 +109,7 @@
           <tr><td>Selfie Mode</td><td><input type="checkbox" checked="true", id="mpSelfieMode" onChange="setMpSelfieMode(this.checked);"/></td></tr>
         </table>
         <p></p>
-        <h3>Display Options</h2>
+        <h3>Display Options</h3>
         <table>
           <tr>
             <td></td>
@@ -114,6 +132,17 @@
         </table>
         <h3>Frame rate</h3>
         <p id="frameRate">0 FPS</p>
+        <h3>Data Collection</h3>
+        <table>
+          <tr>
+            <td align=right>Client ID: </td>
+            <td><input type="text" id="dataCollectionClientID" onChange="setDataCollectionClientID(this.value);" size="50" value='ENTER_YOUR_UNIQUE_CLIENT_ID'></td>
+          </tr>
+          <tr>
+            <td align=right>Server URL: </td>
+            <td><input type="text" id="dataCollectionServerURL" onChange="setDataCollectionServerURL(this.value);" size="50" value='wss://ENTER_SERVER_URL:PORT/'></td>
+          </tr>
+        </table>
       </td>
       <td class="canvas_container">
         <video class="input_video selfie"></video>
