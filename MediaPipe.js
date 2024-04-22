@@ -6,8 +6,11 @@ var holistic = null;
 var camera = null;
 
 var state = {
+  //
+  mediaPipeStatus: -1, // -1: not loaded; 0: loaded no playing; 1: playing camera; 2: playing video file
+  //
   fpsCount: 0,
-  fpsLastTime: Date.now(),
+  fpsLastTime: null,
   //
   isDrawPoseKeypoints: document.getElementById('isDrawPoseKeypoints').checked,
   isDrawFaceKeypoints: document.getElementById('isDrawFaceKeypoints').checked,
@@ -28,7 +31,7 @@ var state = {
   dataCollectionClientID: 'ENTER_YOUR_UNIQUE_CLIENT_ID',
   dataCollectionServerURL: 'wss://ENTER_SERVER_URL:PORT/',
   //
-  fileToLoad: '',
+  videoFiles: [],
 }
 
 export async function loadMediaPipe(){
@@ -46,6 +49,7 @@ export async function loadMediaPipe(){
     await holistic.send({ image: img });
 
     console.log('Mediapipe is loaded');
+    state.mediaPipeStatus = 0;
 }
 
 function refreshMediaPipeOption(){
@@ -72,6 +76,13 @@ function refreshMediaPipeOption(){
 }
 
 export function loadCamera(){
+    // stop video playing
+    if (state.mediaPipeStatus < 0){
+        console.log("loadCamera(): MediaPipe is not loaded yet");
+        return;
+    }
+    // start camera
+    state.mediaPipeStatus = 1;
     camera = new Camera(videoElement, {
       onFrame: async () => {
         await holistic.send({image: videoElement});
@@ -79,16 +90,80 @@ export function loadCamera(){
       width: 640,
       height: 480
     });
+    state.fpsLastTime = Date.now();
     camera.start();
 }
-export function setFileToLoad(val){
-  console.log('setFileToLoad('+val+')')
-  state.fileToLoad = val;
+export function addVideoFile(val){
+  state.videoFiles.push(val);
+  console.log('addVideoFile('+val+')')
+  console.log('addVideoFile:' + state.videoFiles)
 }
-export function loadFile(){
-  console.log('loadFile() called (NOT IMPLEMENTED YET)')
+export function loadVideoFiles(){
+  if (state.mediaPipeStatus < 0){
+    console.log("loadVideoFiles(): MediaPipe is not loaded yet");
+    return;
+  }
+  console.log('Loading: ' + state.videoFiles);
+  //stop camera
+  if (camera){
+      camera.stop();
+  }
+  // start video playing
+  state.mediaPipeStatus = 2;
+  playVideoFile(state.videoFiles, 0);
 }
+function playVideoFile(videoFiles, idx) {
+  if (idx < 0 || videoFiles.length <= idx){
+      console.log("playVideoFile(): invalid idx: " + idx);
+      return;
+  }
+  state.videoUrlName = videoFiles[idx];
+  console.log(state.videoUrlName);
 
+  console.log('Processing \'' + state.videoUrlName);
+
+  let video = document.createElement('video');
+  video.setAttribute("crossorigin", "anonymoous");
+  video.setAttribute("src", state.videoUrlName);
+  video.setAttribute("autoplay", "true");
+  video.setAttribute("muted", "muted");
+
+  video.addEventListener('ended', onEnded, false);
+  video.addEventListener('loadeddata', onLoadeddata, false);
+  function onEnded() {
+    console.log('onEnded');
+    if (state.mediaPipeStatus != 2){
+      return;
+    }
+    if (idx+1 < videoFiles.length) {
+      playVideoFile(videoFiles, idx+1);
+    }
+    else{
+      //signal end of list
+        console.log('Completed processing videoFiles');
+    }
+  }
+  async function onLoadeddata() {
+    console.log('onLoadedData');
+    playLoadedVideo(video);
+  }
+}
+function playLoadedVideo(video) {
+  console.log('playLoadedVideo()');
+  canvasElement.width = video.videoWidth;
+  canvasElement.height = video.videoHeight;
+
+  async function processOneFrame(now, metadata) {
+    await holistic.send({ image: video });
+    if (state.mediaPipeStatus == 2){
+      video.requestVideoFrameCallback(processOneFrame);
+    }
+  }
+  video.requestVideoFrameCallback(processOneFrame);
+  state.fpsLastTime = Date.now();
+  video.play();
+  console.log("Processing started");
+}
 
 export function setMpModelComplexity(val){
   console.log('setMpModelComplexity('+val+')')

@@ -6,7 +6,11 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js" crossorigin="anonymous"></script>
-  <style>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
   .input_video {
     display: none;
     position: absolute;
@@ -36,6 +40,33 @@
     left: 0;
     top: 0;
   }
+  .videos-list ul {
+    margin: 0px;
+    padding: 0px;
+  }
+  .videos-list ul li {
+    list-style: none;
+    float: left;
+    width: 19%;
+    margin: 5px;
+    position: relative;
+  }
+  .videos-list ul li img {
+    width: 100%;
+    border-radius: 10px;
+    height: 110px;
+  }
+  .videos-list ul li span {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, .5);
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  .videos-list ul li span svg {
+    color: #fff;
+  }
   </style>
 </head>
 
@@ -44,8 +75,8 @@
 <script type="module">
   import {loadMediaPipe,
           loadCamera,
-          loadFile,
-          setFileToLoad,
+          loadVideoFiles,
+          addVideoFile,
           setMpModelComplexity,
           setMpSmoothLandmarks,
           setMpEnableSegmentation,
@@ -65,8 +96,8 @@
   } from "./MediaPipe.js";
   window.loadMediaPipe = loadMediaPipe;
   window.loadCamera = loadCamera;
-  window.loadFile = loadFile;
-  window.setFileToLoad = setFileToLoad;
+  window.loadVideoFiles = loadVideoFiles;
+  window.addVideoFile = addVideoFile;
   window.setMpModelComplexity = setMpModelComplexity;
   window.setMpSmoothLandmarks = setMpSmoothLandmarks;
   window.setMpEnableSegmentation = setMpEnableSegmentation;
@@ -83,64 +114,136 @@
   window.setIsShowHandsTableCheckbox = setIsShowHandsTableCheckbox;
   window.setDataCollectionClientID = setDataCollectionClientID;
   window.setDataCollectionServerURL = setDataCollectionServerURL;
+
+  $('#addVideosBtn').click(function() {
+    $(this).parents().find('#addVideosInput').click();
+  });
+  document.getElementById('addVideosInput').onchange = e => {
+    for (const file of e.target.files){
+        console.log(file);
+        const url = URL.createObjectURL(file);
+        // const li = ` <li> <video controls="controls" src=" ${url} " type="video/mp4" width="400px" height="200px"></video>
+        //      <span><i class="fa fa-trash"></i></span>
+        //  </li>`
+        // $('.video-list ul').append(li);
+        $('.video-list ul').append('<li><a href='+url+' target="_blank">'+file.name+'</a></li>');
+        addVideoFile(url);
+    }
+  };
 </script>
 
 <body>
   <H1>MediaPipe Holistic Landmarks Detection Model</H1>
-  <p>Modified from https://github.com/google/mediapipe/blob/master/docs/solutions/holistic.md</p>
+  <!-- <p>Modified from https://github.com/google/mediapipe/blob/master/docs/solutions/holistic.md</p> -->
+  <!-- https://stackoverflow.com/questions/44315727/open-html5-video-tag-content-including-video-in-new-window -->
+  <!-- https://web.dev/articles/requestvideoframecallback-rvfc -->
   <table>
+    <tr>
       <td class="controls">
-        <h3></h3>
         <table>
-          <tr><td><button onClick="loadMediaPipe()">Load Model</button></td></tr>
-          <tr><td><button onClick="loadCamera();">Load Camera</button></td></tr>
-          <tr><td><button onClick="loadFile();">Load File</button></td></tr>
-          <tr><td><input type="text" id="fileToLoad" onChange="setFileToLoad(this.value);" size="50"></td></tr>
-        </table>
-        <h3>Model Options</h3>
-        <table>
-          <tr><td>Model Complexity</td><td><input type="number" value="0", id="mpModelComplexity" min="0" max="2" step="1" onChange="setMpModelComplexity(this.value);"/></td></tr>
-          <tr><td>Smooth Landmarks</td><td><input type="checkbox"checked="true", id="mpSmoothLandmarks" onChange="setMpSmoothLandmarks(this.checked);"/></td></tr>
-          <tr><td>Enable Segmentation</td><td><input type="checkbox" id="mpEnableSegmentation" onChange="setMpEnableSegmentation(this.checked);"/></td></tr>
-          <tr><td>Smooth Segmentation</td><td><input type="checkbox" id="mpSmoothSegmentation" onChange="setMpSmoothSegmentation(this.checked);"/></td></tr>
-          <tr><td>Refine Face Landmarks</td><td><input type="checkbox" id="mpRefineFaceLandmarks" onChange="setMpRefineFaceLandmarks(this.checked);"/></td></tr>
-          <tr><td>Min Detection Confidence</td><td><input type="number" value="0.5", id="mpMinDetectionConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinDetectionConfidence(this.value);"/></td></tr>
-          <tr><td>Min Tracking Confidence</td><td><input type="number" value="0.5", id="mpMinTrackingConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinTrackingConfidence(this.value);"/></td></tr>
-          <tr><td>Selfie Mode</td><td><input type="checkbox" checked="true", id="mpSelfieMode" onChange="setMpSelfieMode(this.checked);"/></td></tr>
-        </table>
-        <p></p>
-        <h3>Display Options</h3>
-        <table>
+          <tr><td colspan=4><h3>Control</h3></td></tr>
+          <tr><td>Load MediaPipe Model</td><td colspan=3><button onClick="loadMediaPipe()">Load</button></td></tr>
+          <tr><td>Start Camera</td><td colspan=3><button onClick="loadCamera();">Start Camera</button></td></tr>
+          <tr><td></td></tr>
+          <tr>
+            <td>
+              Video List
+              <input type="file" class="d-none" id="addVideosInput" accept=" video/*">
+              [<button id="addVideosBtn">Add</button>]
+            </td>
+            <td colspan=3>
+              <div class="video-list"><ul></ul></div>
+            </td>
+          </tr>
+          <tr><td>Play Videos</td><td colspan=3><button onClick="loadVideoFiles();">Start Videos</button></td></tr>
+
+          <tr><td colspan=4><h3>Model Options</h3></td></tr>
           <tr>
             <td></td>
-            <td>pose</td>
-            <td>hands</td>
-            <td>face</td>
+            <td>Model Complexity</td>
+            <td><input type="number" value="0", id="mpModelComplexity" min="0" max="2" step="1" onChange="setMpModelComplexity(this.value);"/></td>
+            <td></td>
           </tr>
           <tr>
-            <td align=right>Draw keypoints</td>
-            <td><input type="checkbox" id="isDrawPoseKeypoints" onChange="setIsDrawPoseKeypointsCheckbox(this.checked);"/></td>
-            <td><input type="checkbox" id="isDrawHandsKeypoints" onChange="setIsDrawHandsKeypointsCheckbox(this.checked);"/></td>
-            <td><input type="checkbox" id="isDrawFaceKeypoints" onChange="setIsDrawFaceKeypointsCheckbox(this.checked);"/></td>
+            <td></td>
+            <td>Smooth Landmarks</td>
+            <td><input type="checkbox"checked="true", id="mpSmoothLandmarks" onChange="setMpSmoothLandmarks(this.checked);"/></td>
+            <td></td>
           </tr>
           <tr>
-            <td align=right>Show table</td>
-            <td><input type="checkbox" id="isShowPoseTable" onChange="setIsShowPoseTableCheckbox(this.checked);"/></td>
-            <td><input type="checkbox" id="isShowHandsTable" onChange="setIsShowHandsTableCheckbox(this.checked);"/></td>
-            <td><input type="checkbox" id="isShowFaceTable" onChange="setIsShowFaceTableCheckbox(this.checked);"/></td>
+            <td></td>
+            <td>Enable Segmentation</td>
+            <td><input type="checkbox" id="mpEnableSegmentation" onChange="setMpEnableSegmentation(this.checked);"/></td>
+            <td></td>
           </tr>
-        </table>
-        <h3>Frame rate</h3>
-        <p id="frameRate">0 FPS</p>
-        <h3>Data Collection</h3>
-        <table>
+          <tr>
+            <td></td>
+            <td>Smooth Segmentation</td>
+            <td><input type="checkbox" id="mpSmoothSegmentation" onChange="setMpSmoothSegmentation(this.checked);"/></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Refine Face Landmarks</td>
+            <td><input type="checkbox" id="mpRefineFaceLandmarks" onChange="setMpRefineFaceLandmarks(this.checked);"/></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Min Detection Confidence</td>
+            <td><input type="number" value="0.5", id="mpMinDetectionConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinDetectionConfidence(this.value);"/></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Min Tracking Confidence</td>
+            <td><input type="number" value="0.5", id="mpMinTrackingConfidence" min="0.0" max="1.0" step="0.1" onChange="setMpMinTrackingConfidence(this.value);"/></td>
+            <td></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td>Selfie Mode</td>
+            <td><input type="checkbox" checked="true", id="mpSelfieMode" onChange="setMpSelfieMode(this.checked);"/></td>
+            <td></td>
+          </tr>
+
+          <tr><td colspan=4><h3>Display Options</h3></td></tr>
+          <tr>
+            <td></td>
+            <td colspan=3>
+              <table>
+                <tr>
+                  <td></td>
+                  <td>pose</td>
+                  <td>hands</td>
+                  <td>face</td>
+                </tr>
+                <tr>
+                  <td align=right>Draw keypoints</td>
+                  <td><input type="checkbox" id="isDrawPoseKeypoints" onChange="setIsDrawPoseKeypointsCheckbox(this.checked);"/></td>
+                  <td><input type="checkbox" id="isDrawHandsKeypoints" onChange="setIsDrawHandsKeypointsCheckbox(this.checked);"/></td>
+                  <td><input type="checkbox" id="isDrawFaceKeypoints" onChange="setIsDrawFaceKeypointsCheckbox(this.checked);"/></td>
+                </tr>
+                <tr>
+                  <td align=right>Show table</td>
+                  <td><input type="checkbox" id="isShowPoseTable" onChange="setIsShowPoseTableCheckbox(this.checked);"/></td>
+                  <td><input type="checkbox" id="isShowHandsTable" onChange="setIsShowHandsTableCheckbox(this.checked);"/></td>
+                  <td><input type="checkbox" id="isShowFaceTable" onChange="setIsShowFaceTableCheckbox(this.checked);"/></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr><td><h3>Frame rate</h3></td><td colspan=2></td><td><p id="frameRate">0 FPS</p></td></tr>
+
+          <tr><td colspan=4><h3>Data Collection</h3></td></tr>
           <tr>
             <td align=right>Client ID: </td>
-            <td><input type="text" id="dataCollectionClientID" onChange="setDataCollectionClientID(this.value);" size="50" value='ENTER_YOUR_UNIQUE_CLIENT_ID'></td>
+            <td colspan=3><input type="text" id="dataCollectionClientID" onChange="setDataCollectionClientID(this.value);" size="50" value='ENTER_YOUR_UNIQUE_CLIENT_ID'></td>
           </tr>
           <tr>
             <td align=right>Server URL: </td>
-            <td><input type="text" id="dataCollectionServerURL" onChange="setDataCollectionServerURL(this.value);" size="50" value='wss://ENTER_SERVER_URL:PORT/'></td>
+            <td colspan=3><input type="text" id="dataCollectionServerURL" onChange="setDataCollectionServerURL(this.value);" size="50" value='wss://ENTER_SERVER_URL:PORT/'></td>
           </tr>
         </table>
       </td>
@@ -150,7 +253,9 @@
       </td>
     </tr>
   </table>
+
   <p id="keypoints"></p>
+
 </body>
 </html>
 
