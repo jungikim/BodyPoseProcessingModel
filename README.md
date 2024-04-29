@@ -7,7 +7,7 @@ Existing applications:
 - physical exercise: push-up, squat counter (https://developers.google.com/ml-kit/vision/pose-detection/classifying-poses)
 - golf swing analysis
 
-Applications:
+Potential applications:
 - gesture-controlled smart home devices (with camera) / computer user interface in general (think "minority report")
 - in-car driver monitor and gesture control
 - sign language recognition (and communicating with non-signers)
@@ -20,7 +20,27 @@ MediaPipe issues to overcome:
 
 
 ## TODO
-- [ ] Build client device-side data pipeline for processing both live webcam stream and recorded video
+- [x] Build client device-side data pipeline for processing both live webcam stream and recorded video
 - [ ] Feature engineering: hand-crafted or latent representation (embedding) learning
 - [ ] Models: sequence classification / sequence tagging / sequence-to-sequence generation
 - [ ] Stream data decoding
+
+
+
+# client-server data collection
+- connection between client-server
+  - websocket
+- client
+  - video, webcam modes
+  - set client id
+  - set server settings
+  - video/webcam resolution
+- server
+  - asynchronous, multi-threaded
+  - data format
+    - client id
+    - video source, dimension
+    - keypoints, timestamp
+    - mediapipe model version, config
+    - (annotations)
+  - database format
