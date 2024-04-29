@@ -19,6 +19,7 @@ var state = {
   isShowFaceTable: document.getElementById('isShowFaceTable').checked,
   isShowHandsTable: document.getElementById('isShowHandsTable').checked,
   //
+  mpVersion: 0,
   mpModelComplexity: 0,
   mpSmoothLandmarks: true,
   mpEnableSegmentation: false,
@@ -32,6 +33,7 @@ var state = {
   dataCollectionServerURL: 'wss://ENTER_SERVER_URL:PORT/',
   //
   videoFiles: [],
+  videoUrlName: '',
 }
 
 export async function loadMediaPipe(){
@@ -48,7 +50,8 @@ export async function loadMediaPipe(){
     img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAUEBAAAACwAAAAAAQABAAACAkQBADs=";
     await holistic.send({ image: img });
 
-    console.log('Mediapipe is loaded');
+    state.mpVersion = window.VERSION;
+    console.log('Mediapipe ' + state.mpVersion + ' is loaded');
     state.mediaPipeStatus = 0;
 }
 
@@ -164,6 +167,47 @@ function playLoadedVideo(video) {
   video.play();
   console.log("Processing started");
 }
+
+
+
+function sendDataToServer(timestamp, keypoints) {
+  return;
+
+  ////video metadata
+  const videowidth = canvasElement.width;
+  const videoheight = canvasElement.height;
+  var videosource = 'webcam';
+  if (state.mediaPipeStatus == 2){
+    videosource = state.videoUrlName;
+  }
+  //// mediapipe metadata
+  state.mpVersion;
+  state.mpModelComplexity;
+  state.mpSmoothLandmarks;
+  state.mpEnableSegmentation;
+  state.mpSmoothSegmentation;
+  state.mpRefineFaceLandmarks;
+  state.mpMinDetectionConfidence;
+  state.mpMinTrackingConfidence;
+  state.mpSelfieMode;
+
+  //// timestamp
+  timestamp;
+  //// mediapipe output
+  keypoints.poseLandmarks; //pose 33 x x,y,visibility
+  keypoints.za; //pose world; 33 x x,y,z,visibility
+  keypoints.rightHandLandmarks; // 21 x x,y,z
+  keypoints.leftHandLandmarks; // 21 x x,y,z
+  keypoints.faceLandmarks; // 468 x x,y,z
+
+  try{
+    
+  } catch (exception) {
+    console.log(exception);
+  }
+}
+
+
 
 export function setMpModelComplexity(val){
   console.log('setMpModelComplexity('+val+')')
@@ -310,6 +354,7 @@ const MESH_ANNOTATIONS = {
 };
 
 function onResults(results) {
+  //// FPS update
   var fpsThisTime = Date.now();
   if (fpsThisTime - state.fpsLastTime > 1000){
     document.getElementById('frameRate').innerHTML = (state.fpsCount/(fpsThisTime-state.fpsLastTime)*1000).toFixed(2) + ' FPS';
@@ -318,6 +363,10 @@ function onResults(results) {
   }
   state.fpsCount += 1;
 
+  //// send data to server
+  sendDataToServer(state.fpsLastTime, results);
+
+  //// keypoints overlay over webcam
   canvasCtx.save();
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   if (typeof results.segmentationMask !== 'undefined'){
@@ -349,7 +398,8 @@ function onResults(results) {
     drawLandmarks(canvasCtx, results.rightHandLandmarks, {color: '#FF0000', lineWidth: 2});
   }
   canvasCtx.restore();
-  
+
+  //// keypoints data in a table format
   document.getElementById('keypoints').innerHTML = printKeypoints(results);
 }
 
